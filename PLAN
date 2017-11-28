@@ -1,0 +1,103 @@
+NOTES:
+	Use printf() instead of ft_printf while creating. Then create a ft_printf that can do the needed functionality.
+
+NEW FUNCTIONS:
+________________________________________________________________________________
+	#include <dirent.h>
+		DIR*			opendir(const char *filename);
+		struct dirent*	readdir(DIR *dirp);
+		int				closedir(DIR *dirp);
+
+		opendir - String parameter of filename, returns pointer to open directory stream
+		readdir - returns pointer to next directory entry or NULL at end of dir/errno
+		closedir - closes directory stream, frees structure of dir pointer, returns -1 if fail
+________________________________________________________________________________
+
+	#include <sys/stat.h>
+		int 			stat(const char *restrict path, struct stat *restrict buf);
+		int 			lstat(const char *restrict path, struct stat *restrict buf);
+
+		struct stat {
+			dev_t     st_dev;			/* ID of device containing file */
+			ino_t     st_ino;			/* Inode number */
+			mode_t    st_mode;			/* File type and mode */
+			nlink_t   st_nlink;			/* Number of hard links */
+			uid_t     st_uid;			/* User ID of owner */
+			gid_t     st_gid;			/* Group ID of owner */
+			dev_t     st_rdev;			/* Device ID (if special file) */
+			off_t     st_size;			/* Total size, in bytes */
+			blksize_t st_blksize;		/* Block size for filesystem I/O */
+			blkcnt_t  st_blocks;		/* Number of 512B blocks allocated */
+
+			struct timespec st_atim;	/* Time of last access */
+			struct timespec st_mtim;	/* Time of last modification */
+			struct timespec st_ctim;	/* Time of last status change */
+		};
+
+		stat - create "struct stat *buf" and pass with file path from readdir.
+		lstat - returns information like stat for file with symbolic link
+________________________________________________________________________________
+
+	#include <sys/types.h>
+	#include <pwd.h>
+	#include <uuid/uuid.h>
+    #include <grp.h>
+		struct passwd*	getpwuid(uid_t uid);
+		struct group*	getgrgid(gid_t gid);
+		struct passwd {
+				char	*pw_name;		/* user name */
+				char	*pw_passwd;		/* encrypted password */
+				uid_t	pw_uid;			/* user uid */
+				gid_t	pw_gid;			/* user gid */
+				time_t	pw_change;		/* password change time */
+				char	*pw_class;		/* user access class */
+				char	*pw_gecos;		/* Honeywell login info */
+				char	*pw_dir;		/* home directory */
+				char	*pw_shell;		/* default shell */
+				time_t	pw_expire;		/* account expiration */
+				int		pw_fields;		/* internal: fields filled in */
+		};
+		struct group {
+			char	*gr_name;		/* group name */
+			char	*gr_passwd;		/* group password */
+			gid_t	gr_gid;			/* group id */
+			char	**gr_mem;		/* group members */
+		};
+
+		getpwuid - given uid,  return passwd structure
+		getgrgid - given group id (gid), return group structure
+________________________________________________________________________________
+
+	#include <time.h>
+		time_t			time(time_t *tloc);
+		char*			ctime(const time_t *clock);
+
+		time -	given address of time_t obj,
+				returns/stores EPOC time as int
+		ctime - given address of time_t obj that already had time() called on it
+				returns/stores time in format: "Thu Nov 24 18:22:48 1986\n\0"
+________________________________________________________________________________
+
+	#include <unistd.h>
+		ssize_t			readlink(const char *restrict path, char *restrict buf, size_t bufsize);
+
+		readlink -	places the contents of the symbolic link path in the buffer buf
+					which has size bufsize. Does not append a NUL char to buf.
+________________________________________________________________________________
+
+	#include <stdio.h>
+		void			perror(const char *s);
+		char*			strerror(int errnum);
+
+		perror - Prints current errorno message with string appended.
+		strerror - Returns string value linked to given errnum
+________________________________________________________________________________
+
+PROCESS:
+	1.	Read man for ls
+	2.	Read man for each NEW FUNCTION
+	3.	Write a program that uses opendir/readdir/closedir
+		to open a folder and list the name of its files on STDOUT.
+	4.	Write a program that takes a file as param and uses stat
+		to get its data and print it out.
+	5.	Structure LS in psuedocode modularized 
