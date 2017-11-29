@@ -17,10 +17,11 @@
 **	node in its lexicographic position.
 */
 
-void	lst_add_lex(t_list_lex **head, t_list_lex *node)
+void	lst_add_item(t_item **head, t_item *node, t_flags *flags)
 {
-	t_list_lex *before;
-	t_list_lex *store;
+	t_item *before;
+	t_item *store;
+	int cmp;
 
 	if (!(*head))
 		(*head) = node;
@@ -30,7 +31,46 @@ void	lst_add_lex(t_list_lex **head, t_list_lex *node)
 		before = (*head);
 		while (*head)
 		{
-			if (ft_strcmp(node->sort_name, (*head)->sort_name) <= 0)
+			cmp = ft_strcmp(node->sort_name, (*head)->sort_name) >= 0;
+			if (((flags->r && cmp) || ((!flags->r) && !cmp)))
+			{
+				if ((*head) == before)
+				{
+					node->next = before;
+					(*head) = node;
+				}
+				else
+				{
+					node->next = before->next;
+					before->next = node;
+					(*head) = store;
+				}
+				return ;
+			}
+			before = (*head);
+			(*head) = (*head)->next;
+		}
+		before->next = node;
+		(*head) = store;
+	}
+}
+
+void	lst_add_dir(t_dir **head, t_dir *node, t_flags *flags)
+{
+	t_dir *before;
+	t_dir *store;
+	int cmp;
+
+	if (!(*head))
+		(*head) = node;
+	else
+	{
+		store = (*head);
+		before = (*head);
+		while (*head)
+		{
+			cmp = ft_strcmp(node->dir_name, (*head)->dir_name) >= 0;
+			if (((flags->r && cmp) || ((!flags->r) && !cmp)))
 			{
 				if ((*head) == before)
 				{

@@ -35,7 +35,7 @@ void	flag_check(char c, t_flags *flags)
 		flags->t = 1;
 	else
 	{
-		printf("usage: ls [-Ralrt] [file ...]");
+		printf("ls: illegal option -- %c\nusage: ls [-Ralrt] [file ...]\n", c);
 		exit(1);
 	}
 }
@@ -77,7 +77,7 @@ int		is_dir(char *path)
 
 	if (stat(path, &stats) == -1)
 	{
-		printf("ls: %s: %s\n", path, strerror(errno));
+		printf("ls: %s %s\n", path, strerror(errno));
 		exit(errno);
 	}
 	if (S_ISDIR(stats.st_mode))
@@ -85,63 +85,92 @@ int		is_dir(char *path)
 	return (0);
 }
 
-
-void	dir_handler(t_list_lex **dirhead, char *path, t_flags *flags)
+void	add_item(t_item **itemhead, char *path, t_flags *flags)
 {
-	// handle flags
-		//exclude hidden files unless -a	
-	// write simple case of printing first
-	// recursivity handled later
-	DIR				*dir;
-	// struct dirent	*file;
-	t_list_lex		*dir_item;
-	dir_item = (t_list_lex *)(malloc(sizeof(t_list_lex)));
-	flags = NULL; //SILENCE
-	if (!(dir = opendir(path)))
-	{
-		printf("ls: %s: %s\n", path, strerror(errno)); // these errors need to be printed in order, use an error buff
-		return ;
-	}
-	dir_item->sort_name = path;
-	dir_item->print_data = path;
-	dir_item->next = NULL;
-	lst_add_lex(dirhead, dir_item);
-	// while ((file = readdir(dir)))
-	// 	list_file_data(file->d_name);
-	closedir(dir);
+	t_item *item;
+
+	item = (t_item *)(malloc(sizeof(t_item)));
+	item->sort_name = path;
+	item->print_data = path;
+	item->next = NULL;
+	lst_add_item(itemhead, item, flags);
 }
 
-void	item_handler(t_list_lex **itemhead, char *path, t_flags *flags)
+void	item_handler(t_item **itemhead, char *path, t_flags *flags)
 {
 	// handle flags
-			//exclude hidden files unless -a
-	// write case of simple print first
+	//exclude hidden files unless -a
 	// never care about recursivity
-	t_list_lex *item;
 	struct stat stats;
 
-	flags = NULL; //SILENCE
-	item = (t_list_lex *)(malloc(sizeof(t_list_lex)));
 	if (stat(path, &stats) == -1)
 	{
 		printf("ls: %s: %s\n", path, strerror(errno));// these errors need to be printed in order, use an error buff
 		exit(errno);
 	}
-	item->sort_name = path;
-	item->print_data = path;
-	item->next = NULL;
-	lst_add_lex(itemhead, item);
+	add_item(itemhead, path, flags);
 }
 
-void	print_lex(t_list_lex *head)
+void	dir_handler(t_dir **dirhead, char *path, t_flags *flags)
+{
+	// handle flags
+		//exclude hidden files unless -a	
+	// write simple case of printing first
+	// recursivity handled later
+	DIR				*dirstream;
+	struct dirent	*file;
+	t_dir			*dir;
+
+	dir = (t_dir *)(malloc(sizeof(t_dir)));
+	if (!(dirstream = opendir(path)))
+	{
+		printf("ls: %s: %s\n", path, strerror(errno));
+		return ;
+	}
+	dir->dir_name = path;
+	dir->item_head = (t_item **)malloc(sizeof(t_item *));
+	*(dir->item_head) = NULL;
+	dir->next = NULL;
+	while ((file = readdir(dirstream)))
+	{
+		if ((!(flags->a)) && file->d_name[0] == '.')
+			continue ;
+		add_item(dir->item_head, file->d_name, flags);
+	}
+	lst_add_dir(dirhead, dir, flags);
+	closedir(dirstream);
+}
+
+void	print_items(t_item *head)
 {
 	while (head)
 	{
-		printf("%s\n", head->print_data);
+		printf("%s\n", head->sort_name);
 		head = head->next;
 	}
 }
-
+void	print_dir(t_dir *head, int alreadyprinted)
+{
+	if (alreadyprinted)
+		printf("\n");
+	if (head->next)
+		alreadyprinted = 1;
+	while (head)
+	{
+		if (alreadyprinted)
+			printf("%s:\n", head->dir_name);
+		while (*(head->item_head))
+		{
+			printf("%s ", (*(head->item_head))->print_data);
+			*(head->item_head) = (*(head->item_head))->next;
+			if (head)
+				printf("\n");
+		}
+		head = head->next;
+		if (head)
+			printf("\n");
+	}
+}
 /*
 **	parse_args is given the end of the argument vector to iterate through.
 **	It will identify the directories and files listed after the ls flags,
@@ -151,23 +180,30 @@ void	print_lex(t_list_lex *head)
 void	parse_args(t_flags *flags, int argc, int i, char **argv)
 {
 	char *path;
-	t_list_lex **item_head;// list of items from initial paths
-	t_list_lex **dir_head; // list of directories from initial paths
+	t_item **item_head;// list of items from initial paths
+	t_dir **dir_head; // list of directories from initial paths
+	int alreadyprinted;
 
-	item_head = (t_list_lex **)malloc(sizeof(t_list_lex *));
-	dir_head = (t_list_lex **)malloc(sizeof(t_list_lex *));
+	alreadyprinted = 0;
+	item_head = (t_item **)malloc(sizeof(t_item *));
+	dir_head = (t_dir **)malloc(sizeof(t_item *));
 	(*item_head) = NULL;
 	(*dir_head) = NULL;
 	if (i >= argc)
-		printf("NO ARGS == ls -[-Ralrt] . (current directory) \n");
+		dir_handler(dir_head, ".", flags);
 	while (i < argc)
 	{
 		path = argv[i];
 		is_dir(path) ? dir_handler(dir_head, path, flags) : item_handler(item_head, path, flags);
 		i++;
 	}
-	print_lex(*item_head);
-	print_lex(*dir_head);  // if printing more than one directory, dirname: files
+	if (*item_head)
+	{
+		alreadyprinted = 1;
+		print_items(*item_head);
+	}
+	if (*dir_head)
+		print_dir(*dir_head, alreadyprinted);  // if printing more than one directory, dirname: files
 }
 
 /*
