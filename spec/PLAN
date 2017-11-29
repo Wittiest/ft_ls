@@ -116,6 +116,21 @@ PROCESS:
 
 
 LS STRUCTURE:
-	
+	PARSE
+		ls commands in structure. Two possibilities "./ft_ls -Rlg" "./ft_ls -R -l" "./ft_ls -Rl -g"
+			1. Pass argument vector and argc to a function.
+			2. Iterate through each arg, reading from the '-' until end or an invalid letter.
+			3. Read through next flag
+			4. At end, we've created a flag structure.
+
+	ONE DIRECTORY
+		Open Directory Stream
+		Store the string for each item in an array corresponding to an array of item names
+		Function to iterate through items in a directory stream (sends to other functions based on flag)
+			- if no flags, print item names
+			- if 'l', send to l function which will store a string for each item
+
+		Sort items, exclude based on flags "not -a means no ."
+		Close Directory stream
 
 
