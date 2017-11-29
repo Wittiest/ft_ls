@@ -10,16 +10,45 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ft_ls.h"
+#include <stdio.h>
 /*
 **	Function will insert given node to a list pointed to by head, placing the
-**	node in its lexicographic position. It will allocate the data for the node.
+**	node in its lexicographic position.
 */
 
-void	lst_add_lex(t_list *head, t_list node)
+void	lst_add_lex(t_list_lex **head, t_list_lex *node)
 {
-	//	allocate memory for node.
-	//	Iterate through list with head until (str_cmp(node->sort_name, head->sort_name) < 0)
-	//	Set (head - 1)->next to node
-	//	Set (node)->next to current head.
-	//	Node has been inserted at correct position and allocated.
+	t_list_lex *before;
+	t_list_lex *store;
+
+	if (!(*head))
+		(*head) = node;
+	else
+	{
+		store = (*head);
+		before = (*head);
+		while (*head)
+		{
+			if (ft_strcmp(node->sort_name, (*head)->sort_name) <= 0)
+			{
+				if ((*head) == before)
+				{
+					node->next = before;
+					(*head) = node;
+				}
+				else
+				{
+					node->next = before->next;
+					before->next = node;
+					(*head) = store;
+				}
+				return ;
+			}
+			before = (*head);
+			(*head) = (*head)->next;
+		}
+		before->next = node;
+		(*head) = store;
+	}
 }

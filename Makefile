@@ -21,7 +21,7 @@ INCLUDES	=	./includes
 CFLAGS		+=	-Wall -Wextra -Werror
 CFLAGS		+=	-I $(LIBFT_DIR)/ -I $(INCLUDES)
 
-FILENAMES	=	ft_ls.c
+FILENAMES	=	ft_ls.c list.c
 
 SRC = $(addprefix srcs/, $(FILENAMES))
 

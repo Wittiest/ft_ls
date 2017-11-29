@@ -39,7 +39,20 @@ ________________________________________________________________________________
 				 int32_t         st_lspare;        /* RESERVED: DO NOT USE! */
 				 int64_t         st_qspare[2];     /* RESERVED: DO NOT USE! */
 		     };
-
+				S_ISBLK(m)
+				Test for a block special file.
+				S_ISCHR(m)
+				Test for a character special file.
+				S_ISDIR(m)
+				Test for a directory.
+				S_ISFIFO(m)
+				Test for a pipe or FIFO special file.
+				S_ISREG(m)
+				Test for a regular file.
+				S_ISLNK(m)
+				Test for a symbolic link.
+				S_ISSOCK(m)
+				Test for a socket.
 		struct timespec {
 			time_t tv_sec	whole seconds
 			long tv_nsec	nanoseconds

@@ -26,11 +26,11 @@
 
 typedef struct	s_flags
 {
-	int flag_l;
-	int flag_a;
-	int flag_R:
-	int	flag_r;
-	int	flag_t;
+	int l;
+	int a;
+	int R;
+	int	r;
+	int	t;
 }				t_flags;
 
 /*
@@ -41,17 +41,19 @@ typedef struct			s_list_lex
 {
 	char				*sort_name;
 	char				*print_data;
-	struct s_list_hex	*next;
-}						t_list;
+	struct s_list_lex	*next;
+}						t_list_lex;
 
 /*
 **	Holds the head of LL of items and head of LL of directories. The items get
 **	printed first. This will become a linked list when I create the -R flag.
 */
-typedef	struct	s_dir_item
-{
-	t_list	*item_head;
-	t_list	*dir_head;
-}				t_dir_item;
+// typedef	struct	s_dir_item
+// {
+// 	t_list_lex	*item_head;
+// 	// t_list_lex	*dir_head;
+// }				t_dir_item;
+
+void	lst_add_lex(t_list_lex **head, t_list_lex *node);
 
 #endif
