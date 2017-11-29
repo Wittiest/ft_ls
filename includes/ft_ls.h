@@ -46,7 +46,7 @@ typedef struct			s_list_lex
 
 /*
 **	Holds the head of LL of items and head of LL of directories. The items get
-**	printed first.
+**	printed first. This will become a linked list when I create the -R flag.
 */
 typedef	struct	s_dir_item
 {
