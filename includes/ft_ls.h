@@ -33,29 +33,22 @@ typedef struct	s_flags
 	int	t;
 }				t_flags;
 
-/*
-**	A lexicographically sorted list of the data we will print for each item
-**	or directory.
-*/
-typedef struct			s_item
+typedef struct		s_tree
 {
-	char				*sort_name;
-	char				*print_data;
-	struct s_item	*next;
-}						t_item;
+	int				is_dir;
+	char			*name;
+	char			*path;
+	char			*print_statement;
+	struct s_tree	*next;
+	struct s_tree	**child_list; // double pointer so that head can be moved
+}					t_tree;
 
-/*
-**	Holds the head of LL of items and head of LL of directories. The items get
-**	printed first. This will become a linked list when I create the -R flag.
-*/
-typedef	struct	s_dir
-{
-	char		*dir_name;
-	t_item	**item_head;
-	struct s_dir *next;
-}				t_dir;
-
-void	lst_add_item(t_item **head, t_item *node, t_flags *flags);
-void	lst_add_dir(t_dir **head, t_dir *node, t_flags *flags);
+void	flag_check(char c, t_flags *flags);
+int		parse_flags(t_flags *flags, int argc, char **argv);
+int		is_dir(char *path);
+void	parse_args(t_flags *flags, int argc, int i, char **argv);
+void	add_tree_node(t_tree **head, t_tree *node, t_flags *flags);
+void	print_tree(t_tree *head);
+char	*str_join_delim(char *s1, char *s2, char *delim);
 
 #endif

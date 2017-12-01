@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   list.c                                             :+:      :+:    :+:   */
+/*   tree.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dpearson <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -11,56 +11,19 @@
 /* ************************************************************************** */
 
 #include "ft_ls.h"
-#include <stdio.h>
-/*
-**	Function will insert given node to a list pointed to by head, placing the
-**	node in its lexicographic position.
-*/
 
-void	lst_add_item(t_item **head, t_item *node, t_flags *flags)
+int		sort_lex_node(t_tree *node, t_tree *comp, t_flags *flags)
 {
-	t_item *before;
-	t_item *store;
 	int cmp;
 
-	if (!(*head))
-		(*head) = node;
-	else
-	{
-		store = (*head);
-		before = (*head);
-		while (*head)
-		{
-			cmp = ft_strcmp(node->sort_name, (*head)->sort_name) >= 0;
-			if (((flags->r && cmp) || ((!flags->r) && !cmp)))
-			{
-				if ((*head) == before)
-				{
-					node->next = before;
-					(*head) = node;
-				}
-				else
-				{
-					node->next = before->next;
-					before->next = node;
-					(*head) = store;
-				}
-				return ;
-			}
-			before = (*head);
-			(*head) = (*head)->next;
-		}
-		before->next = node;
-		(*head) = store;
-	}
+	cmp = ft_strcmp(node->name, comp->name) >=0;
+	return((flags->r && cmp) || ((!flags->r) && !cmp));
 }
 
-void	lst_add_dir(t_dir **head, t_dir *node, t_flags *flags)
+void	add_tree_node(t_tree **head, t_tree *node, t_flags *flags)
 {
-	t_dir *before;
-	t_dir *store;
-	int cmp;
-
+	t_tree *before;
+	t_tree *store;
 	if (!(*head))
 		(*head) = node;
 	else
@@ -69,8 +32,7 @@ void	lst_add_dir(t_dir **head, t_dir *node, t_flags *flags)
 		before = (*head);
 		while (*head)
 		{
-			cmp = ft_strcmp(node->dir_name, (*head)->dir_name) >= 0;
-			if (((flags->r && cmp) || ((!flags->r) && !cmp)))
+			if (sort_lex_node(node, (*head), flags))
 			{
 				if ((*head) == before)
 				{

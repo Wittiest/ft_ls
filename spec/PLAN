@@ -57,8 +57,8 @@ ________________________________________________________________________________
 			time_t tv_sec	whole seconds
 			long tv_nsec	nanoseconds
 		}
-		stat - create "struct stat *buf" and pass with file path from readdir. Returns 0 good, -1 errorno
-		lstat - returns information like stat for file with symbolic link
+		stat - returns information of symbolic link
+		lstat - returns information of ACTUAL FILE
 ________________________________________________________________________________
 
 	#include <sys/types.h>
