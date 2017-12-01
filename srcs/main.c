@@ -15,6 +15,7 @@
 int		main(int argc, char **argv)
 {
 	t_flags		*flags;
+	int			i;
 
 	flags = ft_memalloc(sizeof(t_flags)); 
 	flags->a = 0;
@@ -22,6 +23,8 @@ int		main(int argc, char **argv)
 	flags->r = 0;
 	flags->t = 0;
 	flags->R = 0;
-	parse_args(flags, argc, parse_flags(flags, argc, argv), argv);
+	i = parse_flags(flags, argc, argv);
+	parse_args(flags, argc - i, argv + i);
+	free(flags);
 	return (0);
 }

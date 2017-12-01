@@ -13,121 +13,115 @@
 #include "ft_ls.h"
 #include <stdio.h>
 
-void	item_handler(t_tree **child_list_head, t_flags *flags, char *name)
+void	print_side(t_tree *head, int new)
 {
-	t_tree	*item;
+	t_tree	*save;
 
-	item = ft_memalloc(sizeof(t_tree));
-	item->name = ft_strdup(name);
-	add_tree_node(child_list_head, item, flags);
+	save = head;
+	while (head)
+	{
+		printf("%s\n", head->name);
+		head = head->next;
+	}
+	if (new)
+		printf("\n");
+	head = save;
 }
 
-int		dir_children_handler(t_tree **child_head, t_flags *flags, DIR *dirstream, char *path)
+DIR		*open_dir(char *path)
 {
-	struct dirent	*file;
-	char			*tmp;
-	int				is_children;
-	t_tree			*store;
+	DIR				*dirstream;	
+	if (is_dir(path))
+	{
+		if (!(dirstream = opendir(path)))
+		{
+			printf("\n%s:\n", path);
+			printf("ls: %s: %s\n", path, strerror(errno));
+			return (NULL);
+		}
+		return (dirstream);
+	}
+	return (NULL);
+}
 
-	is_children = 0;
+void	handle_next(t_tree *branch, t_flags *flags)
+{
+	t_tree	*i;
+	DIR		*dirstream;
+
+	i = branch->first_kid;
+	if (flags->R)
+	{
+		while (i)
+		{
+			if ((dirstream = open_dir(i->path)))
+			{
+				if (i->first_kid || i->next || (!(branch->next)))
+					printf("\n");
+				down(dirstream, i, flags, 1);
+				break;
+			}
+			i = i->next;		
+		}
+	}
+	while ((branch = branch->next))
+		if ((dirstream = open_dir((branch)->path)))
+		{
+			down(dirstream, branch, flags, 1);
+			break;
+		}
+}
+
+void	down(DIR* dirstream, t_tree *branch, t_flags *flags, int colon)
+{
+	t_tree			**head;
+	struct dirent	*file;
+	char			*tmppath;
+
+	if (colon || branch->next)
+		printf("%s:\n", branch->path);
+	head = ft_memalloc(sizeof(t_tree *));
 	while ((file = readdir(dirstream)))
 	{
 		if ((!(flags->a)) && file->d_name[0] == '.')
 			continue ;
-		if (!is_children)
-			is_children = 1;
-		item_handler(child_head, flags, file->d_name);
+		tmppath = str_join_delim(branch->path, file->d_name, "/");
+		tree_handler(head, flags, file->d_name, tmppath);
+		free(tmppath);
 	}
-	store = *(child_head);
-	while ((*child_head))
-	{
-		tmp = str_join_delim(path, (*child_head)->name, "/");
-		if (flags->R && is_dir(tmp))
-		{
-			(*child_head)->is_dir = 1;
-			(*child_head)->path = tmp;
-		}
-		else
-			free(tmp);
-		(*child_head) = (*child_head)->next;
-	}
-	*child_head = store;
-	return (is_children);
-}
-
-void	sub_dir_handler(t_tree **child_head, t_flags *flags)
-{
-	DIR				*dirstream;
-	t_tree			*store;
-
-	store = (*child_head);
-	while (*child_head)
-	{
-		if ((*child_head)->is_dir)
-		{
-			(*child_head)->child_list = ft_memalloc(sizeof(t_tree *));
-			*((*child_head)->child_list) = NULL;
-			if (!(dirstream = opendir((*child_head)->path)))
-			{
-				printf("ls: %s: %s\n", (*child_head)->path, strerror(errno));
-				(*child_head) = (*child_head)->next;
-				continue ;
-			}
-			if (dir_children_handler((*child_head)->child_list, flags, dirstream, (*child_head)->path))
-				(*child_head)->is_dir = 1;
-			else
-				(*child_head)->is_dir = 0;
-			closedir(dirstream);
-			sub_dir_handler((*child_head)->child_list, flags);
-		}
-		(*child_head) = (*child_head)->next;
-	}
-	(*child_head) = store;
-}
-
-void	top_dir_handler(t_tree **tree_head, t_flags *flags, char *path)
-{
-	DIR				*dirstream;
-	t_tree			*branch;
-
-	branch = ft_memalloc(sizeof(t_tree));
-	branch->name = ft_strdup(path);
-	branch->path = ft_strdup(path);
-	branch->child_list = ft_memalloc(sizeof(t_tree *));
-	*(branch->child_list) = NULL;
-	if (!(dirstream = opendir(path)))
-	{
-		printf("ls: %s: %s\n", path, strerror(errno));
-		return ;
-	}
-	add_tree_node(tree_head, branch, flags);	
-	if (dir_children_handler(branch->child_list, flags, dirstream, path))
-		branch->is_dir = 1;
-	else
-		branch->is_dir = 0;
 	closedir(dirstream);
-	sub_dir_handler(branch->child_list, flags);
+	branch->first_kid = *(head);
+	print_side(*head, branch->next != NULL);
+	handle_next(branch, flags);
 }
 
-void	parse_args(t_flags *flags, int argc, int i, char **argv)
+void	parse_args(t_flags *flags, int argc, char **argv)
 {
-	t_tree		**tree_head;
 	t_tree		**item_head;
+	t_tree		**tree_head;
+	DIR			*dirstream;
+	int			i;
+	int			ret;
 
 	tree_head = ft_memalloc(sizeof(t_tree *));
 	item_head = ft_memalloc(sizeof(t_tree *));
-	if (i >= argc)
-		top_dir_handler(tree_head, flags, ".");
+	i = 0;
+	if (argc == 0)
+		tree_handler(tree_head, flags, ".", ".");
 	while (i < argc)
 	{
-		if (is_dir(argv[i]))
-			top_dir_handler(tree_head, flags, argv[i]);
-		else
-			item_handler(item_head, flags, argv[i]);
+		if (((ret = is_dir(argv[i])) != -1))
+		{
+			if (ret)
+				tree_handler(tree_head, flags, argv[i], argv[i]);
+			else
+				tree_handler(item_head, flags, argv[i], ".");
+		}
 		i++;
 	}
 	if (*item_head)
-		print_tree(*item_head);
+		print_side(*item_head, *tree_head != NULL);
 	if (*tree_head)
-		print_tree(*((*tree_head)->child_list));
+		if ((dirstream = open_dir((*tree_head)->path)))
+			down(dirstream, *tree_head, flags, *item_head != NULL);
 }

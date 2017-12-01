@@ -19,9 +19,9 @@ LIBFT_DIR	=	$(LIBS)/libft
 INCLUDES	=	./includes
 
 CFLAGS		+=	-Wall -Wextra -Werror
-CFLAGS		+=	-I $(LIBFT_DIR)/ -I $(INCLUDES)
+CFLAGS		+= -I $(LIBFT_DIR)/ -I $(INCLUDES)
 
-FILENAMES	=	ft_ls.c tree.c flags.c utils.c main.c printer.c
+FILENAMES	=	ft_ls.c tree.c flags.c utils.c main.c
 
 SRC = $(addprefix srcs/, $(FILENAMES))
 

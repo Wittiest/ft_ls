@@ -18,8 +18,8 @@ int		is_dir(char *path)
 
 	if (lstat(path, &stats) == -1)
 	{
-		printf("ls: %s %s\n", path, strerror(errno));
-		return (0);
+		printf("ls: %s: %s\n", path, strerror(errno));
+		return (-1);
 	}
 	if (S_ISDIR(stats.st_mode))
 		return (1);
@@ -29,14 +29,13 @@ int		is_dir(char *path)
 /*
 **	Merge s2 to the back of s1 with delimiter delim, auto-nullbyte
 */
-char	*str_join_delim(char *s1, char *s2, char *delim)
+char	*str_join_delim(const char *s1, char *s2, char *delim)
 {
-
 	char	*merge;
 	int		len;
 
 	len = ft_strlen(s1) + ft_strlen(s2) + ft_strlen(delim) + 1;
-	merge = ft_memalloc(sizeof(char) * len);
+	merge = ft_strnew(len);
 	if (merge)
 	{
 		ft_strcpy(merge, s1);
