@@ -31,12 +31,12 @@ LIBFT		=	$(LIBFT_DIR)/libft.a
 all: $(NAME)
 
 $(LIBFT):
-		@make -C $(LIBFT_DIR)
+		make -C $(LIBFT_DIR)
 $(NAME): $(LIBFT)
-		@gcc $(CFLAGS) $(SRC) $(LIBFT) -o $(NAME)
+		gcc $(CFLAGS) $(SRC) $(LIBFT) -o $(NAME)
 clean:
-		@make -C $(LIBFT_DIR) clean
+		make -C $(LIBFT_DIR) clean
 fclean: clean
-		@rm -rf $(NAME)
-		@make -C $(LIBFT_DIR) fclean
+		rm -rf $(NAME)
+		make -C $(LIBFT_DIR) fclean
 re: fclean all

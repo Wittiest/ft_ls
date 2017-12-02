@@ -13,24 +13,24 @@
 #include "ft_ls.h"
 #include <stdio.h>
 
-void	print_side(t_tree *head, int new)
+void	print_side(t_tree *head, int new, t_flags *flags)
 {
-	t_tree	*save;
-
-	save = head;
 	while (head)
 	{
-		printf("%s\n", head->name);
+		if (flags->l)
+			print_l(head);
+		else
+			printf("%s\n", head->name);
 		head = head->next;
 	}
 	if (new)
 		printf("\n");
-	head = save;
 }
 
 DIR		*open_dir(char *path)
 {
-	DIR				*dirstream;	
+	DIR				*dirstream;
+
 	if (is_dir(path))
 	{
 		if (!(dirstream = opendir(path)))
@@ -50,7 +50,7 @@ void	handle_next(t_tree *branch, t_flags *flags)
 	DIR		*dirstream;
 
 	i = branch->first_kid;
-	if (flags->R)
+	if (flags->bigr)
 	{
 		while (i)
 		{
@@ -59,20 +59,22 @@ void	handle_next(t_tree *branch, t_flags *flags)
 				if (i->first_kid || i->next || (!(branch->next)))
 					printf("\n");
 				down(dirstream, i, flags, 1);
-				break;
+				break ;
 			}
-			i = i->next;		
+			i = i->next;
 		}
 	}
 	while ((branch = branch->next))
 		if ((dirstream = open_dir((branch)->path)))
 		{
+			printf("\n");
 			down(dirstream, branch, flags, 1);
-			break;
+			break ;
 		}
+	//I should be able to free a node here, as it will never be used again
 }
 
-void	down(DIR* dirstream, t_tree *branch, t_flags *flags, int colon)
+void	down(DIR *dirstream, t_tree *branch, t_flags *flags, int colon)
 {
 	t_tree			**head;
 	struct dirent	*file;
@@ -91,7 +93,7 @@ void	down(DIR* dirstream, t_tree *branch, t_flags *flags, int colon)
 	}
 	closedir(dirstream);
 	branch->first_kid = *(head);
-	print_side(*head, branch->next != NULL);
+	print_side(*head, branch->next != NULL, flags);
 	handle_next(branch, flags);
 }
 
@@ -105,22 +107,20 @@ void	parse_args(t_flags *flags, int argc, char **argv)
 
 	tree_head = ft_memalloc(sizeof(t_tree *));
 	item_head = ft_memalloc(sizeof(t_tree *));
-	i = 0;
+	i = -1;
 	if (argc == 0)
 		tree_handler(tree_head, flags, ".", ".");
-	while (i < argc)
+	while (++i < argc)
 	{
-		if (((ret = is_dir(argv[i])) != -1))
-		{
-			if (ret)
-				tree_handler(tree_head, flags, argv[i], argv[i]);
-			else
-				tree_handler(item_head, flags, argv[i], ".");
-		}
-		i++;
+		if (((ret = is_dir(argv[i])) == -1))
+			continue ;
+		if (ret)
+			tree_handler(tree_head, flags, argv[i], argv[i]);
+		else
+			tree_handler(item_head, flags, argv[i], ".");
 	}
 	if (*item_head)
-		print_side(*item_head, *tree_head != NULL);
+		print_side(*item_head, *tree_head != NULL, flags); // FREE THESE
 	if (*tree_head)
 		if ((dirstream = open_dir((*tree_head)->path)))
 			down(dirstream, *tree_head, flags, *item_head != NULL);

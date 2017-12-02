@@ -17,12 +17,12 @@ int		main(int argc, char **argv)
 	t_flags		*flags;
 	int			i;
 
-	flags = ft_memalloc(sizeof(t_flags)); 
+	flags = ft_memalloc(sizeof(t_flags));
 	flags->a = 0;
 	flags->l = 0;
 	flags->r = 0;
 	flags->t = 0;
-	flags->R = 0;
+	flags->bigr = 0;
 	i = parse_flags(flags, argc, argv);
 	parse_args(flags, argc - i, argv + i);
 	free(flags);

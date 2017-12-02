@@ -12,7 +12,6 @@
 
 #include "ft_ls.h"
 
-// Deal with precedence like -l over -g, etc.
 void	flag_check(char c, t_flags *flags)
 {
 	if (c == 'l')
@@ -22,7 +21,7 @@ void	flag_check(char c, t_flags *flags)
 	else if (c == 'r')
 		flags->r = 1;
 	else if (c == 'R')
-		flags->R = 1;
+		flags->bigr = 1;
 	else if (c == 't')
 		flags->t = 1;
 	else
@@ -38,7 +37,7 @@ int		parse_flags(t_flags *flags, int argc, char **argv)
 	int j;
 
 	if (argc < 2)
-		return (1); // only doing ls for current directory. No flags
+		return (1);
 	i = 1;
 	while (i < argc)
 	{
