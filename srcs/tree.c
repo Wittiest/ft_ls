@@ -20,15 +20,9 @@ int		sort_node(t_tree *node, t_tree *comp, t_flags *flags)
 	if (flags->t)
 	{
 		if (lstat(node->path, &stats) == -1)
-		{
-			printf("ls: %s: %s\n", node->path, strerror(errno));
-			return (-1);
-		}
+			return (print_error(node->path));
 		if (lstat(comp->path, &statscomp) == -1)
-		{
-			printf("ls: %s: %s\n", node->path, strerror(errno));
-			return (-1);
-		}
+			return (print_error(comp->path));
 		if (stats.st_mtimespec.tv_sec > statscomp.st_mtimespec.tv_sec)
 			return (!flags->r);
 		if (stats.st_mtimespec.tv_sec < statscomp.st_mtimespec.tv_sec)
@@ -45,6 +39,31 @@ int		sort_node(t_tree *node, t_tree *comp, t_flags *flags)
 **	Adds node to tree sorted. Returns 1 when the head was manipulated and needs
 **	to be reset.
 */
+
+void	free_node(t_tree *node)
+{
+	if (node->name)
+		free(node->name);
+	if (node->path)
+		free(node->path);
+	free(node);
+}
+
+void	free_items(t_tree *head)
+{
+	t_tree	*tmp;
+
+	while (head)
+	{
+		tmp = head;
+		if (tmp->name)
+			free(tmp->name);
+		if (tmp->path)
+			free(tmp->path);
+		head = head->next;
+		free(tmp);
+	}
+}
 
 int		add_tree_node(t_tree **head, t_tree *node, t_flags *flags)
 {

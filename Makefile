@@ -10,31 +10,37 @@
 #                                                                              #
 #******************************************************************************#
 
-NAME		=	ft_ls
+CC	= gcc
 
-LIBS		=	./libs
+NAME			=	ft_ls
 
-LIBFT_DIR	=	$(LIBS)/libft
+LIBS			=	./libs
 
-INCLUDES	=	./includes
+LIBFT_DIR		=	$(LIBS)/libft
 
-CFLAGS		+=	-Wall -Wextra -Werror
-CFLAGS		+= -I $(LIBFT_DIR)/ -I $(INCLUDES)
+INCLUDES_DIR	=	./includes
 
-FILENAMES	=	ft_ls.c tree.c flags.c utils.c main.c
+CFLAGS			+=	-Wall -Wextra -Werror
+CFLAGS			+=	-I $(INCLUDES_DIR)
 
-SRC = $(addprefix srcs/, $(FILENAMES))
+FILENAMES		=	ft_ls.c tree.c flags.c utils.c main.c print.c utils2.c
 
-LIBFT		=	$(LIBFT_DIR)/libft.a
+SRC 			= $(addprefix srcs/, $(FILENAMES))
+
+OBJ				= $(SRC:.c=.o)
+
+LIBFT			=	$(LIBFT_DIR)/libft.a
 
 
 all: $(NAME)
 
 $(LIBFT):
 		make -C $(LIBFT_DIR)
-$(NAME): $(LIBFT)
-		gcc $(CFLAGS) $(SRC) $(LIBFT) -o $(NAME)
+
+$(NAME): $(LIBFT) $(OBJ)
+		$(CC) $(CFLAGS) $(OBJ) $(LIBFT) -o $(NAME)
 clean:
+		rm -f $(OBJ)
 		make -C $(LIBFT_DIR) clean
 fclean: clean
 		rm -rf $(NAME)

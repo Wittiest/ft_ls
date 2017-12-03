@@ -17,13 +17,8 @@ int		is_dir(char *path)
 	struct stat stats;
 
 	if (lstat(path, &stats) == -1)
-	{
-		printf("ls: %s: %s\n", path, strerror(errno));
-		return (-1);
-	}
-	if (S_ISDIR(stats.st_mode))
-		return (1);
-	return (0);
+		return (print_error(path));
+	return (S_ISDIR(stats.st_mode));
 }
 
 char	*str_join_delim(const char *s1, char *s2, char *delim)
@@ -52,18 +47,19 @@ char	*str_join_delim(const char *s1, char *s2, char *delim)
 void	get_permissions(struct stat sta)
 {
 	if (S_ISLNK(sta.st_mode))
-		printf("l");
+		ft_putchar('l');
 	else
-		printf((S_ISDIR(sta.st_mode)) ? "d" : "-");
-	printf((sta.st_mode & S_IRUSR) ? "r" : "-");
-	printf((sta.st_mode & S_IWUSR) ? "w" : "-");
-	printf((sta.st_mode & S_IXUSR) ? "x" : "-");
-	printf((sta.st_mode & S_IRGRP) ? "r" : "-");
-	printf((sta.st_mode & S_IWGRP) ? "w" : "-");
-	printf((sta.st_mode & S_IXGRP) ? "x" : "-");
-	printf((sta.st_mode & S_IROTH) ? "r" : "-");
-	printf((sta.st_mode & S_IWOTH) ? "w" : "-");
-	printf((sta.st_mode & S_IXOTH) ? "x" : "-");
+		ft_putchar(((S_ISDIR(sta.st_mode)) ? 'd' : '-'));
+	ft_putchar((sta.st_mode & S_IRUSR) ? 'r' : '-');
+	ft_putchar((sta.st_mode & S_IWUSR) ? 'w' : '-');
+	ft_putchar((sta.st_mode & S_IXUSR) ? 'x' : '-');
+	ft_putchar((sta.st_mode & S_IRGRP) ? 'r' : '-');
+	ft_putchar((sta.st_mode & S_IWGRP) ? 'w' : '-');
+	ft_putchar((sta.st_mode & S_IXGRP) ? 'x' : '-');
+	ft_putchar((sta.st_mode & S_IROTH) ? 'r' : '-');
+	ft_putchar((sta.st_mode & S_IWOTH) ? 'w' : '-');
+	ft_putchar((sta.st_mode & S_IXOTH) ? 'x' : '-');
+	ft_putstr("  ");
 }
 
 char	*readlink_malloc(const char *filename)
@@ -94,25 +90,26 @@ void	print_l(t_tree *head)
 	struct stat stats;
 	char		*time;
 	char		*sym;
+	int			ret;
 
-	if (lstat(head->path, &stats) == -1)
+	if (lstat(head->path, &stats) != -1)
 	{
-		printf("\nls: %s: %s\n", head->path, strerror(errno));
-		return ;
-	}
-	time = ft_strsub(ctime(&stats.st_mtimespec.tv_sec), 4, 12);
-	get_permissions(stats);
-	printf("  ");
-	printf("%d  ", stats.st_nlink);
-	printf("%s %s ", getpwuid(stats.st_uid)->pw_name,
-			getgrgid(stats.st_gid)->gr_name);
-	printf("%*lld ", 6, stats.st_size); // MAKE FUNCTION TO PRINT CORRECTLY
-	printf("%s %s", time, head->name);
-	if ((S_ISLNK(stats.st_mode)))
-		if ((sym = readlink_malloc(head->path)))
+		time = ft_strsub(ctime(&stats.st_mtimespec.tv_sec), 4, 12);
+		get_permissions(stats);
+		ft_putnbr(stats.st_nlink);
+		putstr_spaces(1, getpwuid(stats.st_uid)->pw_name, 2);
+		putstr_spaces(0, getgrgid(stats.st_gid)->gr_name, 1);
+		ret = ft_putllnbr(stats.st_size);
+		putstr_spaces(20 - ret, time, 2);
+		ft_putstr(head->name);
+		free(time);
+		if ((S_ISLNK(stats.st_mode)) && (sym = readlink_malloc(head->path)))
 		{
-			printf(" -> %s", sym);
+			ft_putstr(" -> ");
+			ft_putstr(sym);
 			free(sym);
 		}
-	printf("\n");
+	}
+	else
+		print_error(head->path);
 }

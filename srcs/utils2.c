@@ -1,30 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   utils2.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dpearson <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/30 09:59:17 by dpearson          #+#    #+#             */
-/*   Updated: 2017/11/30 09:59:17 by dpearson         ###   ########.fr       */
+/*   Created: 2017/12/02 17:56:00 by dpearson          #+#    #+#             */
+/*   Updated: 2017/12/02 17:56:00 by dpearson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
 
-int		main(int argc, char **argv)
+long long	get_size(char *path)
 {
-	t_flags		*flags;
-	int			i;
+	struct stat stats;
 
-	flags = ft_memalloc(sizeof(t_flags));
-	flags->a = 0;
-	flags->l = 0;
-	flags->r = 0;
-	flags->t = 0;
-	flags->bigr = 0;
-	i = parse_flags(flags, argc, argv);
-	parse_args(flags, argc - i, argv + i, -1);
-	free(flags);
+	if (lstat(path, &stats) != -1)
+		return (stats.st_blocks);
+	else
+		print_error(path);
 	return (0);
+}
+
+DIR			*open_dir(char *path, int colon)
+{
+	DIR				*dirstream;
+
+	if (is_dir(path))
+	{
+		if (!(dirstream = opendir(path)))
+		{
+			if (colon)
+				print_path(path);
+			print_error(path);
+			return (NULL);
+		}
+		return (dirstream);
+	}
+	return (NULL);
 }

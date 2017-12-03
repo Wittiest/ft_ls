@@ -10,6 +10,8 @@
 #                                                                              #
 #******************************************************************************#
 
+CC	= gcc
+
 NAME		=	libft.a
 
 HEADER		=	./includes
@@ -32,21 +34,20 @@ FILENAMES	=	ft_memset.c ft_memcpy.c ft_memalloc.c ft_bzero.c ft_memccpy.c  \
 
 SRC 		= 	$(addprefix srcs/, $(FILENAMES))
 
-OBJECTS		= ${FILENAMES:c=o}
+OBJECTS		= ${SRC:.c=.o}
 
-OPTION		=	-c -I $(HEADER)
+CFLAGS = -Wall -Wextra -Werror -I $(HEADER)
 
 all : $(NAME)
 
-$(NAME):
-	@ gcc -Wall -Wextra -Werror $(OPTION) $(SRC)
-	@ ar rcs $(NAME) $(OBJECTS)
-	@ ranlib $(NAME)
+$(NAME): $(OBJECTS)
+	ar rc $(NAME) $(OBJECTS)
+	ranlib $(NAME)
 
 clean:
-	@ rm -f $(OBJECTS)
+	rm -f $(OBJECTS)
 
 fclean: clean
-	@ rm -f $(NAME)
+	rm -f $(NAME)
 
 re: fclean all

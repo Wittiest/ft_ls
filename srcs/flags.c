@@ -26,7 +26,9 @@ void	flag_check(char c, t_flags *flags)
 		flags->t = 1;
 	else
 	{
-		printf("ls: illegal option -- %c\nusage: ls [-Ralrt] [file ...]\n", c);
+		ft_putstr("ls: illegal option -- ");
+		ft_putchar(c);
+		ft_putstr("\nusage: ls [-Ralrt] [file ...]\n");
 		exit(1);
 	}
 }
