@@ -61,4 +61,5 @@ void				print_side(t_tree *head, int new, t_flags *flags,
 DIR					*open_dir(char *path, int colon);
 int					ft_putllnbr(long long n);
 void				putstr_spaces(int i, char *str, int n);
+int					recursive_allowed(char *filename);
 #endif

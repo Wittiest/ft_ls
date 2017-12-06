@@ -23,12 +23,15 @@ static void		handle_children(t_tree *head, t_flags *flags, int colon)
 		while ((head = iter))
 		{
 			iter = head->next;
-			if ((dirstream = open_dir(head->path, colon)))
+			if (recursive_allowed(head->name))
 			{
-				if (head->next)
-					ft_putchar('\n');
-				down(dirstream, head, flags, 1);
-				break ;
+				if ((dirstream = open_dir(head->path, colon)))
+				{
+					if (head->next)
+						ft_putchar('\n');
+					down(dirstream, head, flags, 1);
+					break ;
+				}
 			}
 			free_node(head);
 		}

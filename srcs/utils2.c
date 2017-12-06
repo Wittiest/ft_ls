@@ -40,3 +40,10 @@ DIR			*open_dir(char *path, int colon)
 	}
 	return (NULL);
 }
+
+int		recursive_allowed(char *filename)
+{
+	if (!(ft_strcmp(filename, ".")) || !(ft_strcmp(filename, "..")))
+		return (0);
+	return (1);
+}
